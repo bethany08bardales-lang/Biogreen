@@ -279,6 +279,54 @@ select{
     font-size:50px;
   }
 
+@media (max-width: 600px) {
+  header {
+    flex-direction: column; 
+    padding: 15px;
+    gap: 15px;
+  }
+
+  nav {
+    gap: 10px;
+    flex-wrap: wrap; 
+    justify-content: center;
+  }
+
+  nav a {
+    font-size: 14px; 
+  }
+
+  .hero {
+    padding: 30px 20px;
+    margin: 10px;
+  }
+
+  .texto h1 {
+    font-size: 32px; 
+  }
+
+  .texto p {
+    font-size: 16px;
+  }
+
+  .tacho {
+    width: 100%;
+    height: auto;
+  }
+
+  .tacho-img {
+    max-width: 250px; 
+  }
+
+  select {
+    width: 100%;
+  }
+
+  .card {
+    width: 100%; 
+    padding: 20px;
+  }
+}
   header{
     padding:20px;
   }
