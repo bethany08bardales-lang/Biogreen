@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biogreen Revolution</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
-<script src="https://unpkg.com/html5-qrcode"></script>
 <body>
 
 <header>
@@ -15,7 +15,7 @@
     <a href="#">Inicio</a>
     <a href="#" onclick="mostrarPremios()">Recompensas</a>
     <a href="#">Puntos</a>
-    <button class="login">Iniciar sesión</button>
+    <button class="login" onclick="login()">Iniciar sesión</button>
   </nav>
 </header>
 
@@ -33,13 +33,13 @@
       </select>
 
       <div id="reader" style="width: 300px; margin: 20px auto; border-radius: 15px; overflow: hidden;"></div>
-      
+
       <button class="btn-reciclar" onclick="ganarPuntos()">Reciclar ♻️</button>
       <h2 id="textoPuntos">Puntos: 0</h2>
     </div>
 
     <div class="imagen-principal">
-       <img src="img/tacho.jpg" alt="Tacho" class="tacho-img">
+        <img src="img/tacho.jpg" alt="Tacho" class="tacho-img">
     </div>
   </section>
 
@@ -48,7 +48,6 @@
       <h3>🌍 Impacto ambiental</h3>
       <p>Ayudas a reducir contaminación.</p>
     </div>
-</div>
     <div class="card" onclick="mostrarPremios()">
       <h3>🎁 Recompensas</h3>
       <p>Canjea premios con tus puntos.</p>
@@ -82,15 +81,99 @@
       <li>🌍 Ayuda al planeta.</li>
       <li>🗑️ Disminuye residuos.</li>
     </ul>
-    <h2>💡 Recomendaciones</h2>
-    <ul>
-      <li>🥤 Separar plástico y vidrio.</li>
-      <li>📦 Reutilizar cartón.</li>
-    </ul>
     <button onclick="cerrarPopup('impacto')">Cerrar</button>
   </div>
 </div>
 
-<script src="script.js"></script>
+<div id="notificacion" class="notificacion-toast">
+  <span id="mensaje-toast"></span>
+</div>
+
+<style>
+  .notificacion-toast {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #22c55e;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 10000;
+    font-weight: bold;
+    animation: aparecer 0.5s ease-out;
+  }
+  @keyframes aparecer {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+</style>
+
+<script>
+// --- LÓGICA DE LA APLICACIÓN ---
+let puntos = parseInt(localStorage.getItem('puntosEcológicos')) || 0;
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("textoPuntos").innerText = "Puntos: " + puntos;
+
+    const perfilGuardado = localStorage.getItem('perfilUsuario');
+    if (perfilGuardado) {
+        const datos = JSON.parse(perfilGuardado);
+        actualizarInterfazUsuario(datos.nombre);
+    }
+});
+
+function ganarPuntos() {
+    let select = document.getElementById("residuo");
+    let valor = parseInt(select.value);
+    puntos += valor;
+    localStorage.setItem('puntosEcológicos', puntos);
+    document.getElementById("textoPuntos").innerText = "Puntos: " + puntos;
+    mostrarNotificacion("¡Excelente! Sumaste " + valor + " punto(s). ♻️");
+}
+
+function login() {
+    let nombreUsuario = prompt("¡Bienvenido/a a Biogreen! ¿Cuál es tu nombre?");
+    if (nombreUsuario === null || nombreUsuario.trim() === "") {
+        nombreUsuario = "Eco-Usuario";
+    }
+
+    const usuarioInfo = { nombre: nombreUsuario };
+    localStorage.setItem('perfilUsuario', JSON.stringify(usuarioInfo));
+    actualizarInterfazUsuario(usuarioInfo.nombre);
+    mostrarNotificacion("¡Bienvenido/a, " + usuarioInfo.nombre + "! 🌱");
+}
+
+function actualizarInterfazUsuario(nombre) {
+    const botonLogin = document.querySelector('.login');
+    if (botonLogin) {
+        botonLogin.innerText = "👤 " + nombre;
+        botonLogin.style.background = "#1b7f35";
+        // Al hacer clic de nuevo, permite cerrar sesión o cambiar nombre
+        botonLogin.onclick = () => {
+            if(confirm("¿Quieres cerrar sesión o cambiar de nombre?")) {
+                localStorage.removeItem('perfilUsuario');
+                location.reload();
+            }
+        };
+    }
+}
+
+function mostrarNotificacion(mensajeTexto) {
+    const toast = document.getElementById("notificacion");
+    const mensaje = document.getElementById("mensaje-toast");
+    if (toast && mensaje) {
+        mensaje.innerText = mensajeTexto;
+        toast.style.display = "block";
+        setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
+}
+
+function mostrarPremios() { document.getElementById('premiosPopup').style.display = 'flex'; }
+function mostrarImpacto() { document.getElementById('impacto').style.display = 'flex'; }
+function cerrarPopup(id) { document.getElementById(id).style.display = 'none'; }
+</script>
+
 </body>
 </html>
