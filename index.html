@@ -5,39 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biogreen Revolution</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  
   <style>
-    /* ESTO ASEGURA QUE LA NOTIFICACIÓN SE VEA SÍ O SÍ */
-    .notificacion-toast {
-      display: none;
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #22c55e;
-      color: white;
-      padding: 15px 25px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      z-index: 99999; /* Super alto para que flote sobre todo */
-      font-weight: bold;
-      animation: aparecer 0.5s ease-out;
+    /* Estilos esenciales para que los Pop-ups funcionen visualmente */
+    .popup {
+      display: none; 
+      position: fixed; 
+      top: 0; left: 0; 
+      width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.7); 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 10000;
     }
-    @keyframes aparecer {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+    .contenido {
+      background: white; 
+      padding: 30px; 
+      border-radius: 20px; 
+      max-width: 400px; 
+      width: 90%; 
+      text-align: center;
+    }
+    .notificacion-toast {
+      display: none; 
+      position: fixed; 
+      top: 20px; right: 20px; 
+      background: #1b7f35; 
+      color: white; 
+      padding: 15px 25px; 
+      border-radius: 10px; 
+      z-index: 10001;
     }
   </style>
 </head>
+
 <body>
 
 <header>
   <div class="logo">🌱 BIOGREEN REVOLUTION</div>
   <nav>
     <a href="#">Inicio</a>
-    <a href="#" onclick="mostrarPremios()">Recompensas</a>
-    <a href="#">Puntos</a>
-    <button class="login" onclick="login()">Iniciar sesión</button>
+    <a href="#" onclick="mostrarRecompensas()">Premios</a>
+    <button class="login" id="btn-user" onclick="login()">👤 Eco-Usuario</button>
   </nav>
 </header>
 
@@ -54,26 +62,26 @@
         <option value="4">Vidrio = 4 puntos</option>
       </select>
 
-      <div id="reader" style="width: 300px; margin: 20px auto; border-radius: 15px; overflow: hidden;"></div>
-
       <button class="btn-reciclar" onclick="ganarPuntos()">Reciclar ♻️</button>
-      <h2 id="textoPuntos">Puntos: 0</h2>
+      <h2 id="textoPuntos">Puntos: 145</h2>
     </div>
 
     <div class="imagen-principal">
-        <img src="img/tacho.jpg" alt="Tacho" class="tacho-img">
+      <img src="img/tacho.jpg" alt="Tacho" class="tacho-img">
     </div>
   </section>
 
   <section class="cards-container">
     <div class="card" onclick="mostrarImpacto()">
       <h3>🌍 Impacto ambiental</h3>
-      <p>Ayudas a reducir contaminación.</p>
+      <p>Ayudas a reducir la contaminación.</p>
     </div>
-    <div class="card" onclick="mostrarPremios()">
+
+    <div class="card" onclick="mostrarRecompensas()">
       <h3>🎁 Recompensas</h3>
       <p>Canjea premios con tus puntos.</p>
     </div>
+
     <div class="card">
       <h3>📈 Progreso</h3>
       <p>Mira cuánto has reciclado.</p>
@@ -85,82 +93,65 @@
   <span id="mensaje-toast"></span>
 </div>
 
-<div id="premiosPopup" class="popup">
-  <div class="contenido">
-    <h2>🎁 Recompensas BIOGREEN</h2>
-    <ul>
-      <li>✏️ Lápices personalizados — 100 puntos</li>
-      <li>📿 Pulseras recicladas — 180 puntos</li>
-      <li>🧩 Rompecabezas reciclado — 350 puntos</li>
-      <li>👛 Monederos reciclados — 600 puntos</li>
-      <li>🪴 Plantas ornamentales — 800 puntos</li>
-    </ul>
-    <button onclick="cerrarPopup('premiosPopup')">Cerrar</button>
-  </div>
-</div>
-
 <div id="impacto" class="popup">
   <div class="contenido">
     <h2>🌱 Beneficios del reciclaje</h2>
-    <ul>
-      <li>♻️ Reduce la contaminación.</li>
-      <li>🌍 Ayuda al planeta.</li>
-      <li>🗑️ Disminuye residuos.</li>
+    <p>Al reciclar con Biogreen, evitas que plásticos lleguen al océano y reduces la huella de carbono.</p>
+    <button onclick="cerrarPopup('impacto')" style="margin-top:15px; padding:10px 20px; cursor:pointer;">Entendido</button>
+  </div>
+</div>
+
+<div id="premiosPopup" class="popup">
+  <div class="contenido">
+    <h2>🎁 Tus Recompensas</h2>
+    <ul style="list-style:none; padding:15px 0; text-align:left;">
+      <li>✏️ Lápiz ecológico: 100 pts</li>
+      <li>📿 Pulsera reciclada: 180 pts</li>
+      <li>🧩 Rompecabezas reciclado: 350 pts</li>
+      <li>👛 Monederos reciclados: 600 pts</li>
+      <li>🪴 Plantas ornamentales: 800 pts</li>
     </ul>
-    <button onclick="cerrarPopup('impacto')">Cerrar</button>
+    <button onclick="cerrarPopup('premiosPopup')" style="padding:10px 20px; cursor:pointer;">Cerrar</button>
   </div>
 </div>
 
 <script>
-let puntos = parseInt(localStorage.getItem('puntosEcológicos')) || 0;
+  let puntos = 145;
 
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("textoPuntos").innerText = "Puntos: " + puntos;
-    const perfil = localStorage.getItem('perfilUsuario');
-    if (perfil) {
-        actualizarInterfazUsuario(JSON.parse(perfil).nombre);
-    }
-});
-
-function ganarPuntos() {
+  function ganarPuntos() {
     let valor = parseInt(document.getElementById("residuo").value);
     puntos += valor;
-    localStorage.setItem('puntosEcológicos', puntos);
     document.getElementById("textoPuntos").innerText = "Puntos: " + puntos;
-    
-    // Llamada a la notificación
     mostrarNotificacion("¡Excelente! Sumaste " + valor + " punto(s). ♻️");
-}
+  }
 
-function login() {
-    let nombre = prompt("¡Bienvenido/a! ¿Cuál es tu nombre?");
-    if (!nombre) nombre = "Eco-Usuario";
-    localStorage.setItem('perfilUsuario', JSON.stringify({nombre: nombre}));
-    actualizarInterfazUsuario(nombre);
-    mostrarNotificacion("¡Bienvenido/a, " + nombre + "! 🌱");
-}
-
-function actualizarInterfazUsuario(nombre) {
-    const btn = document.querySelector('.login');
-    if (btn) {
-        btn.innerText = "👤 " + nombre;
-        btn.style.background = "#1b7f35";
+  function login() {
+    let nombre = prompt("¿Cómo te llamas?");
+    if(nombre) {
+      document.getElementById("btn-user").innerText = "👤 " + nombre;
+      mostrarNotificacion("¡Bienvenido, " + nombre + "!");
     }
-}
+  }
 
-function mostrarNotificacion(mensajeTexto) {
+  function mostrarNotificacion(msj) {
     const toast = document.getElementById("notificacion");
     const mensaje = document.getElementById("mensaje-toast");
-    if (toast && mensaje) {
-        mensaje.innerText = mensajeTexto;
-        toast.style.display = "block";
-        setTimeout(() => { toast.style.display = "none"; }, 3000);
-    }
-}
+    mensaje.innerText = msj;
+    toast.style.display = "block";
+    setTimeout(() => { toast.style.display = "none"; }, 3000);
+  }
 
-function mostrarPremios() { document.getElementById('premiosPopup').style.display = 'flex'; }
-function mostrarImpacto() { document.getElementById('impacto').style.display = 'flex'; }
-function cerrarPopup(id) { document.getElementById(id).style.display = 'none'; }
+  function mostrarImpacto() {
+    document.getElementById("impacto").style.display = "flex";
+  }
+
+  function mostrarRecompensas() {
+    document.getElementById("premiosPopup").style.display = "flex";
+  }
+
+  function cerrarPopup(id) {
+    document.getElementById(id).style.display = "none";
+  }
 </script>
 
 </body>
